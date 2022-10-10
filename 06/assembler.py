@@ -1,16 +1,8 @@
 #ohjeet https://b1391bd6-da3d-477d-8c01-38cdf774495a.filesusr.com/ugd/44046b_b73759b866b249a0b3a715bf5a18f668.pdf
+#rpkoskin
 
 def decimalToBinary(n):
     return "{0:015b}".format(int(n))
-
-#luetaan tiedosto ja tehdään komennoista lista
-assemblyKomennot = [] #mallia ["123213","02101010"]
-komennot = []
-count = 0
-with open ("./06/pong/PongL.asm", "r") as f: 
-    for rivi in f.readlines():
-        if "//" not in rivi and rivi.strip():
-            komennot.append(rivi[:-1]) #poistetaan "\n"       
 
 
 #dest=comp;jump
@@ -121,41 +113,52 @@ def comp(komento):
     else:
         return "comp"
 
-for komento in komennot:
-    print(komento)
-    jumpOsa = ""
-    instrOsa = ""
-    destOsa = ""
-    compOsa = ""
-    if "@" in komento: #jos a-komento
-        assemblyKomennot.append(aKomento(komento) + "\n") #lisätään komento dictionaryyn
-        continue
-    else:
-        #lisätään aluksi instr osa
-        instrOsa = "111"
-
-        #dest osa 
-        if "=" not in komento:
-            destOsa = "000"
+def muunnaAssemblyksi(mista, mihin):
+    #luetaan tiedosto ja tehdään komennoista lista
+    assemblyKomennot = [] #mallia ["123213","02101010"]
+    komennot = []
+    count = 0
+    with open (mista, "r") as f: 
+        for rivi in f.readlines():
+            if "//" not in rivi and rivi.strip():
+                komennot.append(rivi[:-1]) #poistetaan "\n"   
+    for komento in komennot:
+        print(komento)
+        jumpOsa = ""
+        instrOsa = ""
+        destOsa = ""
+        compOsa = ""
+        if "@" in komento: #jos a-komento
+            assemblyKomennot.append(aKomento(komento) + "\n") #lisätään komento dictionaryyn
+            continue
         else:
-            destOsa = dest(komento.split("=")[0]) #erotetaan dest osa ja muutetaan assemblykielelle. Lisätään dictionaryyn
-            komento = komento.split("=")[1] #poistetaan dest osa kokonaan myöhempää tekemistä varten
-        
-        #jump osa
-        if ";" not in komento: 
-            jumpOsa = "000"
-        else: 
-            jumpOsa = jump(komento.split(";")[1])
-            komento = komento.split(";")[0]
+            #lisätään aluksi instr osa
+            instrOsa = "111"
 
-        #comp-osa
-        compOsa = comp(komento)
-        komentoAssemblyna = str(instrOsa) + str(compOsa) + str(destOsa) + str(jumpOsa)
-        if len(komentoAssemblyna) != 16:
-            print(komentoAssemblyna)
+            #dest osa 
+            if "=" not in komento:
+                destOsa = "000"
+            else:
+                destOsa = dest(komento.split("=")[0]) #erotetaan dest osa ja muutetaan assemblykielelle. Lisätään dictionaryyn
+                komento = komento.split("=")[1] #poistetaan dest osa kokonaan myöhempää tekemistä varten
+            
+            #jump osa
+            if ";" not in komento: 
+                jumpOsa = "000"
+            else: 
+                jumpOsa = jump(komento.split(";")[1])
+                komento = komento.split(";")[0]
 
-        assemblyKomennot.append(str(instrOsa) + str(compOsa) + str(destOsa) + str(jumpOsa) + "\n")
+            #comp-osa
+            compOsa = comp(komento)
+            komentoAssemblyna = str(instrOsa) + str(compOsa) + str(destOsa) + str(jumpOsa)
+            if len(komentoAssemblyna) != 16:
+                print(komentoAssemblyna)
 
-with open("testi.hack", "w") as f:
-    for komento in assemblyKomennot:
-        f.writelines(str(komento))
+            assemblyKomennot.append(str(instrOsa) + str(compOsa) + str(destOsa) + str(jumpOsa) + "\n")
+
+    with open(mihin, "w") as f:
+        for komento in assemblyKomennot:
+            f.writelines(str(komento))
+
+muunnaAssemblyksi("./add/Add.asm","./add/Add.hack")
